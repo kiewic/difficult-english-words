@@ -1,2 +1,3 @@
-# difficult-english-words
-Difficult English words
+# Difficult English words to pronounce
+
+These words were chosen by English learners.
