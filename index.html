@@ -555,8 +555,13 @@
         audio: 'creaking.mp3'
       },
     ];
+
+    // Rearrange the words using a random starting array index
+    const start = Math.floor((Math.random() * words.length));
+    const words2 = [ ...words.slice(start, words.length), ...words.slice(0, start)];
+
     const list = document.querySelector('section');
-    for (const word of words) {
+    for (const word of words2) {
       const url = `https://www.bing.com/search?q=define+${encodeURIComponent(word.text)}`;
       const anchor = document.createElement('a');
       if (word.title) {
