@@ -1,0 +1,526 @@
+const https = require('https');
+const fs = require('fs');
+const puppeteer = require('puppeteer');
+const _ = require('lodash');
+
+const words = [{
+  "text": "Brochure",
+  "audio": "brochure.mp3",
+  "pronunciation": "/ˈbrəʊʃə/"
+}, {
+  "text": "Origin",
+  "audio": "origin.mp3",
+  "pronunciation": "/ˈorəʤən/"
+}, {
+  "text": "Incognito",
+  "audio": "incognito.mp3",
+  "pronunciation": "/ˌɪnˌkɑːgˈniːtoʊ/"
+}, {
+  "text": "Chaos",
+  "audio": "chaos.mp3",
+  "pronunciation": "/ˈkeɪˌɑːs/"
+}, {
+  "text": "Debut",
+  "audio": "debut.mp3",
+  "pronunciation": "/ˈdeɪˌbjuː/"
+}, {
+  "text": "Dubious",
+  "audio": "dubious.mp3",
+  "pronunciation": "/ˈdjuːbijəs/"
+}, {
+  "text": "Carbohydrate",
+  "audio": "carbohydrate.mp3",
+  "pronunciation": "/ˌkɑɚboʊˈhaɪˌdreɪt/"
+}, {
+  "text": "Vital",
+  "audio": "vital.mp3",
+  "pronunciation": "/ˈvaɪtl̟/"
+}, {
+  "text": "Abide",
+  "audio": "abide.mp3",
+  "pronunciation": "/əˈbaɪd/"
+}, {
+  "text": "Entrepreneur",
+  "audio": "entrepreneur.mp3",
+  "pronunciation": "/ˌɑːntrəprəˈnɚ/"
+}, {
+  "text": "Representative",
+  "audio": "representative.mp3",
+  "pronunciation": "/ˌrɛprɪˈzɛntətɪv/"
+}, {
+  "text": "Pliers",
+  "audio": "pliers.mp3",
+  "pronunciation": "/ˈplajɚz/"
+}, {
+  "text": "Pear",
+  "audio": "pear.mp3",
+  "pronunciation": "/ˈpeɚ/"
+}, {
+  "text": "Route",
+  "audio": "route.mp3",
+  "pronunciation": "/ˈruːt/ /ˈraʊt/"
+}, {
+  "text": "Determine",
+  "audio": "determine.mp3",
+  "pronunciation": "/dɪˈtɚmən/"
+}, {
+  "text": "Determined",
+  "audio": "determined.mp3",
+  "pronunciation": "/dɪˈtɚmɪnd/"
+}, {
+  "text": "Undermine",
+  "audio": "undermine.mp3",
+  "pronunciation": "/ˌʌndɚˈmaɪn/"
+}, {
+  "text": "Maintain",
+  "audio": "maintain.mp3",
+  "pronunciation": "/meɪnˈteɪn/"
+}, {
+  "text": "Jewel",
+  "title": "JOOL",
+  "audio": "jewel.mp3",
+  "pronunciation": "/ˈʤuːl/"
+}, {
+  "text": "Jewelry",
+  "title": "JOOL-ree",
+  "audio": "jewelry.mp3"
+}, {
+  "text": "Variety",
+  "audio": "variety.mp3",
+  "pronunciation": "/vəˈrajəti/"
+}, {
+  "text": "Occur",
+  "audio": "occur.mp3",
+  "pronunciation": "/əˈkɚ/"
+}, {
+  "text": "Occurrences",
+  "audio": "occurrences.mp3",
+  "pronunciation": "/əˈkɚrəns/"
+}, {
+  "text": "Spouse",
+  "audio": "spouse.mp3",
+  "pronunciation": "/ˈspaʊs/"
+}, {
+  "text": "Genre",
+  "audio": "genre.mp3",
+  "pronunciation": "/ˈʒɑːnrə/"
+}, {
+  "text": "Gender",
+  "audio": "gender.mp3",
+  "pronunciation": "/ˈʤɛndɚ/"
+}, {
+  "text": "Evenly",
+  "audio": "evenly.mp3",
+  "pronunciation": "/ˈiːvən/"
+}, {
+  "text": "Vocabulary",
+  "audio": "vocabulary.mp3",
+  "pronunciation": "/vəʊˈkæbjələri/"
+}, {
+  "text": "Capability",
+  "audio": "capability.mp3",
+  "pronunciation": "/ˌkeɪpəˈbɪləti/"
+}, {
+  "text": "Awareness",
+  "audio": "awareness.mp3",
+  "pronunciation": "/ˌsɛlfəˈweɚnəs/"
+}, {
+  "text": "Theatre",
+  "audio": "theatre.mp3"
+}, {
+  "text": "Aluminum",
+  "audio": "aluminum.mp3",
+  "pronunciation": "/əˈluːmənəm/"
+}, {
+  "text": "Drool 🤤",
+  "audio": "drool.mp3",
+  "pronunciation": "/ˈdruːl/"
+}, {
+  "text": "Thaw",
+  "audio": "thaw.mp3",
+  "pronunciation": "/ˈθɑː/"
+}, {
+  "text": "Couch",
+  "audio": "couch.mp3",
+  "pronunciation": "/ˈkaʊtʃ/"
+}, {
+  "text": "Coach",
+  "audio": "coach.mp3",
+  "pronunciation": "/ˈkoʊtʃ/"
+}, {
+  "text": "Yeast",
+  "audio": "yeast.mp3",
+  "pronunciation": "/ˈjiːst/"
+}, {
+  "text": "Wheat",
+  "audio": "wheat.mp3",
+  "pronunciation": "/ˈwiːt/"
+}, {
+  "text": "Theory",
+  "title": "THEE-ree",
+  "audio": "theory.mp3",
+  "pronunciation": "/ˈθiːjəri/"
+}, {
+  "text": "Vary",
+  "audio": "vary.mp3",
+  "pronunciation": "/ˈveri/"
+}, {
+  "text": "Very",
+  "audio": "very.mp3",
+  "pronunciation": "/ˈveri/"
+}, {
+  "text": "Annual",
+  "audio": "annual.mp3",
+  "pronunciation": "/ˈænjəwəl/"
+}, {
+  "text": "Negate",
+  "audio": "negate.mp3",
+  "pronunciation": "/nɪˈgeɪt/"
+}, {
+  "text": "Apparent",
+  "audio": "apparent.mp3",
+  "pronunciation": "/əˈperənt/"
+}, {
+  "text": "Alternately",
+  "audio": "alternately.mp3",
+  "pronunciation": "/ˈɑːltɚˌneɪt/"
+}, {
+  "text": "Perishable",
+  "audio": "perishable.mp3",
+  "pronunciation": "/ˈperɪʃəbəl/"
+}, {
+  "text": "Actively",
+  "audio": "actively.mp3",
+  "pronunciation": "/ˈæktɪv/"
+}, {
+  "text": "Stabilize",
+  "audio": "stabilize.mp3"
+}, {
+  "text": "Minor",
+  "audio": "minor.mp3",
+  "pronunciation": "/ˈmaɪnɚ/"
+}, {
+  "text": "Gorgeous",
+  "audio": "gorgeous.mp3",
+  "pronunciation": "/ˈgoɚʤəs/"
+}, {
+  "text": "Figuratively",
+  "audio": "figuratively.mp3",
+  "pronunciation": "/ˈfɪgjərətɪvli/"
+}, {
+  "text": "Chandelier",
+  "audio": "chandelier.mp3",
+  "pronunciation": "/ˌʃændəˈliɚ/"
+}, {
+  "text": "Interest",
+  "title": "IN-trest",
+  "audio": "interest.mp3",
+  "pronunciation": "/ˈɪntrəst/"
+}, {
+  "text": "Interesting",
+  "title": "IN-trest-ing",
+  "audio": "interesting.mp3",
+  "pronunciation": "/ˈɪntrəstɪŋ/"
+}, {
+  "text": "Ivory",
+  "title": "IVE-ree",
+  "audio": "ivory.mp3",
+  "pronunciation": "/ˈaɪvəri/"
+}, {
+  "text": "Laboratory",
+  "title": "LAB-ruh-tory",
+  "audio": "laboratory.mp3",
+  "pronunciation": "/ləˈbɒrətri/"
+}, {
+  "text": "Miniature",
+  "title": "MIN-uh-cher",
+  "audio": "miniature.mp3",
+  "pronunciation": "/ˈmɪnijəˌtʃuɚ/"
+}, {
+  "text": "Miserable",
+  "title": "MIZ-ruh-bul",
+  "audio": "miserable.mp3",
+  "pronunciation": "/ˈmɪzərəbəl/"
+}, {
+  "text": "Mystery",
+  "title": "MIST-ree",
+  "audio": "mystery.mp3",
+  "pronunciation": "/ˈmɪstəri/"
+}, {
+  "text": "Opera",
+  "title": "AHP-ruh",
+  "audio": "opera.mp3",
+  "pronunciation": "/ˈɑːpərə/"
+}, {
+  "text": "Practically",
+  "title": "PRAK-tik-lee",
+  "audio": "practically.mp3",
+  "pronunciation": "/ˈpræktɪkli/"
+}, {
+  "text": "Preference",
+  "title": "PREF-rence",
+  "audio": "preference.mp3",
+  "pronunciation": "/ˈprɛfrəns/"
+}, {
+  "text": "Respiratory",
+  "title": "RES-pri=tor-ee",
+  "audio": "respiratory.mp3",
+  "pronunciation": "/rɪˈspɪrətri/"
+}, {
+  "text": "Reverence",
+  "title": "REV-rence",
+  "audio": "reverence.mp3",
+  "pronunciation": "/ˈrɛvərəns/"
+}, {
+  "text": "Separate",
+  "title": "SEP-ret",
+  "audio": "separate.mp3",
+  "pronunciation": "/ˈsɛpərət/"
+}, {
+  "text": "Separately",
+  "title": "SEP-ret-lee",
+  "audio": "separately.mp3",
+  "pronunciation": "/ˈsɛpərətli/"
+}, {
+  "text": "Several",
+  "title": "SEV-rul",
+  "audio": "several.mp3",
+  "pronunciation": "/ˈsɛvərəl/"
+}, {
+  "text": "Sophomore",
+  "title": "SAWF-more",
+  "audio": "sophomore.mp3",
+  "pronunciation": "/ˈsɑːfˌmoɚ/"
+}, {
+  "text": "Temperature",
+  "title": "TEMP-ruh-tcher",
+  "audio": "temperature.mp3",
+  "pronunciation": "/ˈtɛmprəˌtʃuɚ/"
+}, {
+  "text": "Toward",
+  "title": "TORD",
+  "audio": "toward.mp3",
+  "pronunciation": "/ˈtowɚd/ /ˈtoɚd/"
+}, {
+  "text": "Traveling",
+  "title": "TRAV-ling",
+  "audio": "traveling.mp3"
+}, {
+  "text": "Vegetable",
+  "title": "VEJ-tuh-bul",
+  "audio": "vegetable.mp3",
+  "pronunciation": "/ˈvɛʤtəbəl/"
+}, {
+  "text": "Veterinarian",
+  "title": "vet-ru-NAR-ee-un",
+  "audio": "veterinarian.mp3",
+  "pronunciation": "/ˌvɛtərəˈnerijən/"
+}, {
+  "text": "Virtually",
+  "title": "VER-chuh-lee",
+  "audio": "virtually.mp3",
+  "pronunciation": "/ˈvɚtʃəwəli/"
+}, {
+  "text": "Wednesday",
+  "title": "WENS-day",
+  "audio": "wednesday.mp3",
+  "pronunciation": "/ˈwɛnzˌdeɪ/"
+}, {
+  "text": "Accidentally",
+  "title": "aks-ih-DENT-lee",
+  "audio": "accidentally.mp3",
+  "pronunciation": "/ˌæksəˈdɛntl̟/"
+}, {
+  "text": "Actually",
+  "title": "AK-shul-ee",
+  "audio": "actually.mp3",
+  "pronunciation": "/ˈæktʃəwəli/"
+}, {
+  "text": "Aspirin",
+  "title": "ASS-prin",
+  "audio": "aspirin.mp3",
+  "pronunciation": "/ˈæspərən/"
+}, {
+  "text": "Average",
+  "title": "AV-rej",
+  "audio": "average.mp3",
+  "pronunciation": "/ˈævrɪʤ/"
+}, {
+  "text": "Basically",
+  "title": "BASE-ik-ly",
+  "audio": "basically.mp3",
+  "pronunciation": "/ˈbeɪsɪkli/"
+}, {
+  "text": "Beverage",
+  "title": "BEV-rej",
+  "audio": "beverage.mp3",
+  "pronunciation": "/ˈbɛvrɪʤ/"
+}, {
+  "text": "Broccoli",
+  "title": "BROK-lee",
+  "audio": "broccoli.mp3",
+  "pronunciation": "/ˈbrɑːkəli/"
+}, {
+  "text": "Business",
+  "title": "BIZ-nuss",
+  "audio": "business.mp3"
+}, {
+  "text": "Camera",
+  "title": "KAM-ruh",
+  "audio": "camera.mp3",
+  "pronunciation": "/ˈkæmrə/"
+}, {
+  "text": "Catholic",
+  "title": "KATH-lik",
+  "audio": "catholic.mp3",
+  "pronunciation": "/ˈkæθlɪk/"
+}, {
+  "text": "Chocolate",
+  "title": "CHOK-let",
+  "audio": "chocolate.mp3",
+  "pronunciation": "/ˈtʃɑːklət/"
+}, {
+  "text": "Comfortable",
+  "title": "KOMF-ter-bul",
+  "audio": "comfortable.mp3",
+  "pronunciation": "/ˈkʌmftɚbəl/"
+}, {
+  "text": "Deliberately",
+  "title": "duh-LIB-rut-lee",
+  "audio": "deliberately.mp3",
+  "pronunciation": "/dɪˈlɪbərətli/"
+}, {
+  "text": "Desperate",
+  "title": "DESS-pret",
+  "audio": "desperate.mp3",
+  "pronunciation": "/ˈdɛsprət/"
+}, {
+  "text": "Diamond",
+  "title": "DIE-mund",
+  "audio": "diamond.mp3",
+  "pronunciation": "/ˈdaɪmənd/"
+}, {
+  "text": "Diaper",
+  "title": "DIE-per",
+  "audio": "diaper.mp3",
+  "pronunciation": "/ˈdaɪpɚ/"
+}, {
+  "text": "Difference",
+  "title": "DIF-rence",
+  "audio": "difference.mp3",
+  "pronunciation": "/ˈdɪfrəns/"
+}, {
+  "text": "Different",
+  "title": "DIF-rent",
+  "audio": "different.mp3",
+  "pronunciation": "/ˈdɪfrənt/"
+}, {
+  "text": "Discovery",
+  "title": "dis-KUV-ree",
+  "audio": "discovery.mp3",
+  "pronunciation": "/dɪˈskʌvəri/"
+}, {
+  "text": "Elementary",
+  "title": "el-uh-MEN-tree",
+  "audio": "elementary.mp3",
+  "pronunciation": "/ˌɛləˈmɛntri/"
+}, {
+  "text": "Evening",
+  "title": "EEV-ning",
+  "audio": "evening.mp3",
+  "pronunciation": "/ˈiːvnɪŋ/"
+}, {
+  "text": "Every",
+  "title": "EHV-ree",
+  "audio": "every.mp3",
+  "pronunciation": "/ˈɛvri/"
+}, {
+  "text": "Extraordinary",
+  "title": "ex-TROT-din-ary",
+  "audio": "extraordinary.mp3"
+}, {
+  "text": "Family",
+  "title": "FAM-lee",
+  "audio": "family.mp3",
+  "pronunciation": "/ˈfæmli/"
+}, {
+  "text": "Favorite",
+  "title": "FAV-rit",
+  "audio": "favorite.mp3"
+}, {
+  "text": "Federal",
+  "title": "FED-rul",
+  "audio": "federal.mp3",
+  "pronunciation": "/ˈfɛdərəl/"
+}, {
+  "text": "General",
+  "title": "JEN-ruhl",
+  "audio": "general.mp3",
+  "pronunciation": "/ˈʤɛnrəl/"
+}, {
+  "text": "Generally",
+  "title": "JEN-ruh-lee",
+  "audio": "generally.mp3",
+  "pronunciation": "/ˈʤɛnrəli/"
+}, {
+  "text": "Calvary",
+  "audio": "calvary.mp3",
+  "pronunciation": "/ˈkælvəri/"
+}, {
+  "text": "Colonel",
+  "audio": "colonel.mp3",
+  "pronunciation": "/ˈkɚnl̟/"
+}, {
+  "text": "February",
+  "audio": "february.mp3",
+  "pronunciation": "/ˈfɛbjəˌweri/ /ˈfɛbrəˌweri/"
+}, {
+  "text": "Hurricane",
+  "audio": "hurricane.mp3",
+  "pronunciation": "/ˈhʌrəkən/"
+}, {
+  "text": "Creaking",
+  "audio": "creaking.mp3",
+  "pronunciation": "/ˈkriːk/"
+}];
+
+(async () => {
+  const browser = await puppeteer.launch();
+
+  for (const word of words) {
+    try {
+      if (word.pronunciation) {
+        continue;
+      }
+
+      const page = await browser.newPage();
+      const url = `https://www.learnersdictionary.com/definition/${encodeURIComponent(word.text)}`;
+      console.log(url);
+      await page.goto(url);
+
+      let pronunciations = await page.evaluate(() => {
+        // Note 1: here you can use querySelectorAll()
+        // Note 2: eval can't return non-serializable data, so, you need to JSON.stringify() to receive objects.
+        const element = document.querySelector('.text_prons');
+        return element.innerText;
+      });
+      pronunciations = pronunciations
+        .replace(/\s+/g, ' ')
+        .replace(/.+Brit/g, ' ')
+        .trim();
+      console.log(pronunciations);
+
+      word.pronunciation = pronunciations;
+
+      // await page.screenshot({ path: 'example.png' });
+    }
+    catch (error) {
+      console.log(`Error downloading ${word.text}`);
+      console.error(error);
+    }
+  }
+
+  await browser.close();
+
+  console.log(JSON.stringify(words));
+})();
